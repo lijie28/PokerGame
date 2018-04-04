@@ -74,6 +74,8 @@ def biggerthan(mypokers,thepokers):
     return
 
 
+
+
 def checktype(thepokers):
     check = copy.deepcopy(thepokers)
     diccheck = {}
@@ -88,8 +90,14 @@ def checktype(thepokers):
         # i +=1
         # print(i)
     calls = set([v for k,v in diccheck.items()])
-    # print('the:',calls
-    # print (check,diccheck)
+    
+
+    themax = 0
+    for i,x in enumerate(diccheck.values()):
+        if x>themax:
+            themax = x
+        print('chek:',i,x)
+    print(diccheck.values(),diccheck.keys())
 
     if calls == {1}:
         if len(check) == 1:
@@ -344,8 +352,8 @@ def main():
     test = [  'a12', 'b12',  'c12', 'd12',  'c13', 'd13']
     # test = ['bj0','sj0']
     typename = checktype(test)
-    cansend = checkcansend(newa,typename)
-    print(typename,cansend)
+    # cansend = checkcansend(newa,typename)
+    print(typename)
 
 
 
