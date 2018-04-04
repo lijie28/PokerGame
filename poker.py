@@ -161,13 +161,18 @@ class CanSend(list):
             thecard = [xarr]
             others = aftersend(self,xarr)
             a = CanSend(others)
-            sigs = a.thesames(2)
+            sigs = a.thesames(num)
             
-            for s in sigs:
-                newcard = copy.copy(xarr)
-                if s in xarr:
-                    continue
-                thecards.append(newcard+s)
+
+            while len(sigs)>0:
+                theone = sigs.pop(0)
+                for x in sigs:
+                    thecards.append(xarr+theone+x)
+            # for i in range(len(sigs)-1):
+            #     newcard = copy.copy(xarr)
+            #     s1 = sigs[i]
+            #     s2 = sigs[i+1]
+            #     thecards.append(newcard+s1+s2)
         return thecards
 
     #Quadplex set
@@ -336,7 +341,7 @@ def main():
     # checkleft(newa)
 
 
-    test = ['b10', 'c11',  'a12', 'b12',  'c12', 'd12']
+    test = [  'a12', 'b12',  'c12', 'd12',  'c13', 'd13']
     # test = ['bj0','sj0']
     typename = checktype(test)
     cansend = checkcansend(newa,typename)
