@@ -62,23 +62,12 @@ a = filter(lambda x: x > 0, a)
 
 
 def test():
-    x = 1
-    xo = 3
-    while x<5:
-        x += 1
-        for a in range(1,10):
-            if a == xo:
-                a =4
-                print(a,'a == xo')
-            elif a == 4:
-                xo = 5
-                print(a,'a == 6')
-                break
-            else :
-                print(a,'a ')
-                # break
+    av = [1,2,3,4,5]
+    bv = [6,7,8,9]
+    for a,b in av,bv:
+        
 
-        print('在外',x)
+        print('在外',a,b)
 
 
 
