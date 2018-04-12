@@ -11,20 +11,28 @@ import json
 
 class UdpServer(object):
     def search(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        # PORT = 10086
-        sock.bind(('', 10086))
+          # udp_gb_client.py
+        '''客户端（UDP协议局域网广播）'''
 
-        mes = json.dumps({'action': 'searchForConection','value': 'testhaha' })
-        sendDataLen = sock.sendto(mes,("255.255.255.255", 10086))
 
-        print sendDataLen
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-        # print 'Listening for xbroadcast at ', s.getsockname()
+        PORT = 10086
+
+        s.bind(('', PORT))
+        mes = json.dumps({'action': 'searchForConection','value': 'tests' })
+        sendDataLen = s.sendto(mes,('255.255.255.255', PORT))
+        # 
         # while True:
-        #   data, address = s.recvfrom(1024)
-          # print 'Server received from {}:{}'.format(address, data.decode('utf-8'))
+        #     print '进来了'
+        #     revcData, (remoteHost, remotePort) = s.recvfrom(65535)
+        #     print('Listening for broadcast at ', s.getsockname())
+        #     mes = json.dumps({'action': 'searchForConection','value': 'tests' })
+        #     sendDataLen = s.sendto(mes,(remoteHost, remotePort))
+        #     print mes
+            # data, address = s.recvfrom(65535)
+        #     print('Server received from {}:{}'.format(address, data.decode('utf-8')))
 
 
     def tcpServer(self):
@@ -36,7 +44,7 @@ class UdpServer(object):
         while True:
             revcData, (remoteHost, remotePort) = sock.recvfrom(1024)
 
-
+            data = eval(revcData)
             if data['action'] == 'searchForConection':
                 # mes = "收到 %d" % count
                 name = socket.getfqdn(socket.gethostname()) 
