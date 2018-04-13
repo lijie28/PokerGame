@@ -16,7 +16,7 @@ def client_left(client, server):
 def message_received(client, server, message):                                  
         if len(message) > 200:                                                  
                 message = message[:200]+'..'                                    
-        print("Client(%d) said: %s" % (client['id'], message))                  
+        print("%s Client(%d) said: %s" % (client['address'][0],client['id'], message))                  
 
 
 PORT=9001                                                                       

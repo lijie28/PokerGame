@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random,re,copy
 
 from itertools import combinations
