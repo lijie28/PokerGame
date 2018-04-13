@@ -10,9 +10,40 @@ brand = {'a':'方块','b':'梅花','c':'红桃','d':'黑桃'}
 # brand = {'a':'方块'}
 brand_code = ['a','b','c','d']
 
+def send(handpokers,sendpokers):
+
+    for p in sendpokers:
+        if p not in handpokers[0]:
+            print '不存在'
+            return False
+
+    strtype,themax,thelen = checktype(sendpokers)
+    if strtype == '不清楚':
+        print strtype
+        return False
+
+
+    cs = CanSend(handpokers[0])
+    theps = [set(x)  for x in cs.checkcansend(strtype)]
+
+    print '此次出牌：',sendpokers,'出的好像是：',strtype,'当前对应有：',theps
+    if set(sendpokers) not in theps:
+        return False
+
+
+
+    # for p in sendpokers:
+    #     handpokers[1].append(p)
+    #     handpokers[0].remove(p)
+
+    print'出牌成功:',strtype,set(sendpokers)
+    return True
 
 
 class MyPokers(object):
+
+    # def beLandlord(llcs):
+
     def send(self,pokers):
         for p in pokers:
             if p not in self.handpokers:
@@ -215,7 +246,7 @@ def checktype(thepokers):
         else:
             return('四带二',themax[0],len(thepokers))
     else:
-        return('不清楚')
+        return('不清楚',0,0)
         # for x in calls:
         #     print('set',x)
 
@@ -240,9 +271,9 @@ class CanSend(list):
         elif typename == '三带二':
             return self.twaax(2)
         elif typename == '连对':
-            return self.box(2)
+            return self.sox(2)
         elif typename == '连三':
-            return self.box(3)
+            return self.sox(3)
         elif typename == '飞机3-1':
             return self.sotwax(1)
         elif typename == '飞机3-2':
@@ -506,7 +537,6 @@ def main():
     test2 = ['a8', 'b8','c8']
     # typename = checktype(test)
 
-    # cansend = checkcansend(newa,typename)
     # print(typename)
     myps = MyPokers(newa)
 
