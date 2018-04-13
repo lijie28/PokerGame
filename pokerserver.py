@@ -51,7 +51,7 @@ class UdpServer(object):
                 mes = json.dumps({'action': 'receive','value': name })
                 
                 sendDataLen = sock.sendto(mes,(remoteHost, remotePort))
-                print mes
+                print '接收到：',data
             
         sock.close()
             

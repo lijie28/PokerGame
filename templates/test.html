@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript">
+    var ws;
+    var username = getUrlParameter('username');
+    var url = "ws://0.0.0.0:9001/";
+
+    window.onload = connect;
+    function onOpen(evt) {  
+        alert(evt.data)
+    }  
+         
+    function onClose(evt) { 
+        alert(evt)
+    }  
+         
+    function onError(evt) { 
+        alert(evt)
+    } 
+
+
+
+
+    function connect() {
+        if ('WebSocket' in window) {
+            alert('WebSocket');
+            ws = new WebSocket(url);
+        } else if ('MozWebSocket' in window) {
+            alert('MozWebSocket');
+            ws = new MozWebSocket(url);
+        } else {
+            alert('该浏览器不支持websocket');
+            return;
+        }
+        
+        ws.onopen = function(evt) { 
+            onOpen(evt) 
+        }; 
+        // ws.onclose = function(evt) { 
+        //     onClose(evt) 
+        // }; 
+        // ws.onerror = function(evt) { 
+        //     onError(evt) 
+        // }; 
+
+        ws.onclose = function (e) {  
+        //e  CloseEvent对象  
+        //e.code 关闭代码编号标识  
+        //e.reason 关闭原因  
+            console.info(e);  
+            console.log('链接已经关闭');  
+        }  
+        ws.onerror = function (e) {  
+            console.info(e);  
+            console.log('发生异常:'+e.message);  
+        }
+
+
+
+        ws.onmessage = function(event) {
+
+            alert(event.data)
+            // eval("var result=" + event.data);
+            //欢迎语言
+            // if (result.alert != undefined) {
+            //     document.getElementById("content").innerHTML += result.alert
+            //             + "<br/>";
+            // }
+            // //列表
+            // if (result.names != undefined) {
+            //     document.getElementById("userList").innerHTML = "";
+            //     var arr = result.names;
+            //     for (var i = 0; i < arr.length; i++) {
+            //         document.getElementById("userList").innerHTML += arr[i]
+            //                 + "<br/>";
+            //     }
+            // }
+            // //聊天内容
+            // if (result.from != undefined) {
+            //     document.getElementById("content").innerHTML += result.from
+            //             + " " + result.date + " 说：<br/>" + result.sendMsg
+            //             + "<br/>";
+            // }
+        };
+    }
+
+    function wsSend() {
+
+        var msg = document.getElementById("msg");
+
+        // alert(msg.value);
+        ws.send(msg.value);
+        // ws.send('发送了数据');
+        msg.value = "";
+    }
+
+    //截取URL 中的传过来的值
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.parent.location.href);
+        if (results == null)
+            return "";
+        else {
+
+            return results[1];
+        }
+    }
+</script>
+</head>
+<body>
+    <div id="content"
+        style="border: 1px solid black; width: 400px; height: 300px; float: left;"></div>
+    <div id="userList"
+        style="border: 1px solid black; width: 100px; height: 300px; float: left;"></div>
+
+    <div style="clear: both;">
+        <input id="msg" />
+        <button onclick="wsSend()">send</button>
+    </div>
+</body>
+</html>
