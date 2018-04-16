@@ -3,7 +3,7 @@ import poker
 
 
 class GameProcess():
-
+    def send
     def tellnext(self):
         for i,x in enumerate(self.menbers):
             if x == self.sender :
@@ -92,10 +92,23 @@ def main():
         print newgame.checkHandpokers(),lps
 
         condiction = poker.send(newgame.checkHandpokers(),lps)
-        if condiction:
+        if condiction and len(lps)==0:
+            print 'pass了：',ans,lps
+            # newgame.owner 
+            nextone = newgame.tellnext()
+            if newgame.owner[0] == nextone:
+                newgame.owner[1]=None
+
+        elif condiction:
             print ans,lps
+
+            newgame.owner[0]= newgame.sender
+            newgame.owner[1]= lps
+            newgame.tellnext()
         else:
             print 'error，请重新出牌',lps
+
+    print '剩余手牌：\n',newgame.pokers[0][1][0],'\n',ewgame.pokers[1][1][0],'\n',newgame.pokers[2][1][0]
 
 
 

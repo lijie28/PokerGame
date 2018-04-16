@@ -11,6 +11,11 @@ brand = {'a':'方块','b':'梅花','c':'红桃','d':'黑桃'}
 brand_code = ['a','b','c','d']
 
 def send(handpokers,sendpokers):
+    if len(sendpokers)==1 :
+        if sendpokers[0] =='' or sendpokers[0] =='pass':
+            sendpokers.pop(0)
+            return True
+        # print '只有一个',sendpokers[0]
 
     for p in sendpokers:
         if p not in handpokers[0]:
@@ -23,26 +28,23 @@ def send(handpokers,sendpokers):
         return False
 
 
-    cs = CanSend(handpokers[0])
-    theps = [set(x)  for x in cs.checkcansend(strtype)]
+    # cs = CanSend(handpokers[0])
+    # theps = [set(x)  for x in cs.checkcansend(strtype)]
 
-    print '此次出牌：',sendpokers,'出的好像是：',strtype,'当前对应有：',theps
-    if set(sendpokers) not in theps:
-        return False
+    # print '此次出牌：',sendpokers,'出的好像是：',strtype,'当前对应有：',theps
+    # if set(sendpokers) not in theps:
+    #     return False
 
+    for p in sendpokers:
+        handpokers[1].append(p)
+        handpokers[0].remove(p)
 
-
-    # for p in sendpokers:
-    #     handpokers[1].append(p)
-    #     handpokers[0].remove(p)
-
-    print'出牌成功:',strtype,set(sendpokers)
+    print'出牌成功:',strtype,sendpokers
     return True
 
 
 class MyPokers(object):
 
-    # def beLandlord(llcs):
 
     def send(self,pokers):
         for p in pokers:
@@ -53,16 +55,12 @@ class MyPokers(object):
             self.sendpokers.append(p)
             self.handpokers.remove(p)
 
-
         return True
 
 
     def __init__(self,handpokers):
         self.handpokers = handpokers
         self.sendpokers = []
-
-
-
 
 
 def getpoke():
@@ -82,10 +80,6 @@ def getpoke():
     return dic
 
 
-# def setpoke(poke):
-
-
-
 def getTotalPokers(hasJoker = True):
     totalp = [k+str(x) for x in range(1,14) for k,v in brand.items()]
     if hasJoker:
@@ -102,6 +96,7 @@ def randompick(pokers,num):
         pokers.remove(tp)
     return thepicks,pokers
 
+
 def rewash(pokers):
     dic = getpoke()
     # for i,x in enumerate(pokers):
@@ -116,8 +111,10 @@ def rewash(pokers):
     # sorted(pokers, key=lambda student: student.age)
     return newpokers
 
+
 def finddigi(str):
     return int(re.findall("\d+", str)[0])
+
 
 def aftersend(pokers,sends):
     mypokers = copy.copy(pokers)
@@ -131,9 +128,6 @@ def aftersend(pokers,sends):
     #         mypokers.remove(s)
     return mypokers
     
-
-# def biggerthan(mypokers,thepokers):
-#     return
 
 def countpokers(thepokers):
     check = copy.deepcopy(thepokers)
@@ -149,35 +143,18 @@ def countpokers(thepokers):
     return diccheck
 
 
-
-
-            # cans.append(back)
-
-
-def checkmax(thepokers):
-    def biggerthan(x1,x2):
-        a = range(3,14)
-        b = [1,2]
-        
-        if x1 in a and x2 in a and x1>x2:
-            return True
-        elif x1 in b and x2 in b and x1>x2:
-            return True
-        elif x1 in b and x2 in a:
-            return True
-        elif x1 == 0 or x2== 0 :
-            return None
+def ifbigger(front,back):
+    # checktype(front)
+    fronttype,frontmax,frontlen = checktype(front)
+    backtype,backmax,backlen = checktype(back)
+    if backtype == '王炸':
         return False
 
-    themax = [0,0]
-    for k,v in diccheck.items():
-        # print(k,v)
-        if v > themax[1]:
-            themax[1] = v
-            themax[0] = k
-        elif v == themax[1]:
-            if biggerthan(k,themax[0]):
-                themax[0] = k
+    if fronttype == '王炸':
+        return True
+    elif fronttype == '炸弹':
+        if backtype == '炸弹':
+            pass
 
 def checktype(thepokers):
     def biggerthan(x1,x2):
@@ -193,6 +170,19 @@ def checktype(thepokers):
         elif x1 == 0 or x2== 0 :
             return None
         return False
+
+    def diccheckshun(dic,count):
+        newl = [k for k,v in dic.items() if v==count]
+        for i,x in enumerate(newl):
+            if i != len(newl)-1:
+                if x+1==newl[i+1]:
+                    pass
+                else:
+                    return False
+        return True
+
+        print 'diccheckshun:',newl,set(newl)
+
 
     diccheck = countpokers(thepokers)
     calls = set([v for k,v in diccheck.items()])
@@ -210,41 +200,66 @@ def checktype(thepokers):
                 themax[0] = k
 
     if calls == {1}:
+        # defb = diccheckshun(diccheck,1)
+        # print 'diccheckshun:',defb
         if len(thepokers) == 1:
             return('单',themax[0],len(thepokers))
-        else:
+        elif len(thepokers)>=5 and diccheckshun(diccheck,1):
             return('顺子',themax[0],len(thepokers))
+        else:
+            return('不清楚',0,0)
     elif calls == {2} and 'bj0' not in thepokers:
         if len(thepokers) == 2:
             return('对子',themax[0],len(thepokers))
-        else:
+        elif len(thepokers)>=6 and diccheckshun(diccheck,2):
             return('连对',themax[0],len(thepokers))
-    elif calls == {2} and 'bj0' in thepokers:
+        else:
+            return('不清楚',0,0)
+    elif calls == {2} and 'bj0' in thepokers and len(thepokers) == 2:
         return('王炸',themax[0],len(thepokers))
     elif calls == {3}:
         if len(calls) == 3:
             return('三张',themax[0],len(thepokers))
-        else:
+        elif len(thepokers)>=6 and diccheckshun(diccheck,3):
             return('连三',themax[0],len(thepokers))
+        else:
+            return('不清楚',0,0)
     elif calls == {3,1}:
         if len(thepokers) == 4:
             return('三带一',themax[0],len(thepokers))
-        else:
+        elif len(thepokers)>=8 and diccheckshun(diccheck,3):
             return('飞机3-1',themax[0],len(thepokers))
+        else:
+            return('不清楚',0,0)
     elif calls == {3,2}:
         if len(thepokers) == 5:
             return('三带二',themax[0],len(thepokers))
-        elif len(thepokers) == 8 or len(thepokers) == 16:
+        elif diccheckshun(diccheck,3):
+            if len(thepokers) == 8 or len(thepokers) == 16:
+                return('飞机3-1',themax[0],len(thepokers))
+            else:
+                return('飞机3-2',themax[0],len(thepokers))
+        else:
+            return('不清楚',0,0)
+
+
+    elif calls == {3,2,1}:
+        if diccheckshun(diccheck,3):
             return('飞机3-1',themax[0],len(thepokers))
         else:
-            return('飞机3-2',themax[0],len(thepokers))
-    elif calls == {3,2,1}:
-            return('飞机3-1',themax[0],len(thepokers))
+            return('不清楚',0,0)
     elif calls == {4,2} or calls == {4,1}:
         if len(thepokers) == 6:
             return('四带一',themax[0],len(thepokers))
+        elif len(thepokers) == 8:
+            return('四带二',themax[0],len(thepokers))   
         else:
-            return('四带二',themax[0],len(thepokers))
+            return('不清楚',0,0)
+    elif calls == {4} :
+        if len(thepokers) == 4:
+            return('炸弹',themax[0],len(thepokers))  
+        else:
+            return('不清楚',0,0)
     else:
         return('不清楚',0,0)
         # for x in calls:
@@ -534,26 +549,26 @@ def main():
     # test = ['a2','bj0', 'a9','b9' ,'c9', 'b10',  'c10' ,  'd10']
 
     test1 = ['a12', 'b12', 'c12', 'sj0']
-    test2 = ['a8', 'b8','c8']
+    test2 = ['d8','a8','a12', 'b12','c10','a10']
     # typename = checktype(test)
 
     # print(typename)
-    myps = MyPokers(newa)
+    # myps = MyPokers(newa)
 
-    print(myps.handpokers,myps.sendpokers)
+    # print(myps.handpokers,myps.sendpokers)
 
-    if myps.send(test1):
-        print('成功出牌',myps.handpokers,myps.sendpokers)
-    else:
-        print('出牌有问题')
+    # if myps.send(test1):
+    #     print('成功出牌',myps.handpokers,myps.sendpokers)
+    # else:
+    #     print('出牌有问题')
 
-    if myps.send(test2):
-        print('成功出牌',myps.handpokers,myps.sendpokers)
-    else:
-        print('出牌有问题')
+    # if myps.send(test2):
+    #     print('成功出牌',myps.handpokers,myps.sendpokers)
+    # else:
+    #     print('出牌有问题')
         
     # print (countpokers(myps))
-    # checkleft(newa)
+    checktype(test2)
 
     # same3 = myps.sotwax(2)
 
