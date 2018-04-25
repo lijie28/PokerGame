@@ -4,8 +4,6 @@ from newser import NewServer
 
 
         
-
-
 class GameMenber(list):
     def checkIp(self,client):
         ip = client['address'][0]
@@ -31,6 +29,11 @@ class GameMenber(list):
     def join(self,client,name):
         self.append([client,name])
 
+    def isfull(self):
+        if len(self) >= 3:
+            return True
+        return False
+
 
     def __init__(self):
         self = []
@@ -50,6 +53,10 @@ class Game():
                     break
         return self.sender
 
+    def tellPokers(self,name):
+        for n,p in self.pokers:
+            if n == name:
+                return p[0]
 
     def checkHandpokers(self):
         name = self.sender
@@ -66,16 +73,6 @@ class Game():
                 self.sender = p[0]
                 self.owner = [p[0],None]
                 break
-
-
-    def joinin(self,client,name):
-        # self.menbers.append([client,name])
-        # # print '目前成员',self.menbers
-        # 
-        self.menbers.join(client,name)
-        if len(self.menbers) == 3:
-            return True
-        return False
             
 
     def dipper(self):
@@ -101,64 +98,55 @@ def ask(q):
 
 
 
+def jsondump(jsonname,datavalue,target=''):
+    return json.dumps({
+            'action': jsonname,
+            'data':datavalue
+            })
+
 def setName(newgame,dicmessage,client,server):
     if len(newgame.menbers)<3:
             # ip = client['address'][0]
             name = dicmessage['data']
             print '加入了：',client,name
-            isfull = newgame.joinin(client,name)
+
+            newgame.menbers.join(client,name)
 
             #告诉全世界有新成员加入
             newmenbers = [x[1] for x in newgame.menbers]
-            dicdata = {'action':'newMenber',
-            'data':newmenbers
-            }
-            senddata = json.dumps(dicdata)
             for x in newgame.menbers:
-                server.send_message(x[0],senddata)
+                server.send_message(x[0],jsondump('newMenber',newmenbers))
 
-            if isfull:
+            if newgame.menbers.isfull():
+
                 print '满人：',newgame.menbers,'发牌'
                 newgame.dipper()
                 print '发牌情况：',newgame.pokers,'地主牌是：',newgame.landlord[1]
 
                 for i,x in enumerate(newgame.menbers):
-                    yourpokers = json.dumps(
-                        {'action':'receivePokers',
-                        'data':newgame.pokers[i][1][0]
-                    })
-                    server.send_message(x[0],yourpokers)
+                    server.send_message(x[0],jsondump('receivePokers',newgame.pokers[i][1][0]))
 
-                askstr = json.dumps(
-                        {'action':'askLandlord',
-                        'data':newgame.landlord[1]
-                        })
-                server.send_message(newgame.menbers[0][0],askstr)
+                server.send_message(newgame.menbers[0][0],jsondump('askLandlord',newgame.landlord[1]))
 
     else:
         print '满人了'
 
 
+
 def setLandlord(newgame,dicmessage,client,server):
     print '抢地主'
     if dicmessage['data'] == True:
-        for i,x in enumerate(newgame.menbers):
-            if x[0] == client:
-                newgame.confirmLandlord(x[1])
-                for n,p in newgame.pokers:
-                    if n == x[1]:
-                        strpokers = json.dumps({
-                            'action':'receivePokers',
-                            'data':p[0]
-                            })
-                        server.send_message(client,strpokers)
 
+        landlord_name = newgame.menbers.tellName(client)
+        newgame.confirmLandlord(landlord_name)
+        p = newgame.tellPokers(landlord_name)
 
-                strtellnext = json.dumps({
-                    'action':'askToSend',
-                    'data':newgame.owner[1]
-                    })
-                server.send_message(client,strtellnext)#服务器告诉下一个出牌
+        #告诉他重新洗牌
+        server.send_message(client,jsondump('receivePokers',p))
+
+        #告诉让他出牌
+        server.send_message(client,jsondump('askToSend',newgame.owner[1]))
+    
     else:
 
         for i,x in enumerate(newgame.menbers):
@@ -166,12 +154,7 @@ def setLandlord(newgame,dicmessage,client,server):
                 if i == len(newgame.menbers)-1:
                     print '重新开始'
                 else:
-
-                    askstr = json.dumps(
-                            {'action':'askLandlord',
-                            'data':newgame.landlord[1]
-                            })
-                    server.send_message(newgame.menbers[i+1][0],askstr)
+                    server.send_message(newgame.menbers[i+1][0],jsondump('askLandlord',newgame.landlord[1]))
 
                     print '问下一个',newgame.menbers[i+1][0]
                 break
@@ -180,7 +163,6 @@ def setLandlord(newgame,dicmessage,client,server):
 def sendPokers(newgame,dicmessage,client,server):
     lps=dicmessage['data']
     condiction = poker.send(newgame.checkHandpokers(),lps,newgame.owner[1])
-    # newgame.owner[0]
 
     if condiction and len(lps)==0:
         print 'pass了：',lps
@@ -189,38 +171,22 @@ def sendPokers(newgame,dicmessage,client,server):
         if newgame.owner[0] == nextone:
             newgame.owner[1]=None
 
-        strmes = json.dumps({
-            'action':'sendSuccess',
-            'data':lps
-            })
-        server.send_message(client,strmes)#告知出牌成功
+        server.send_message(client,jsondump('sendSuccess',lps))#告知出牌成功
 
 
-
-        server.send_message(client,strmes)
-
-        strtellnext = json.dumps({
-            'action':'askToSend',
-            'data':newgame.owner[1]
-            })
         nextclient = None
         for c,n in newgame.menbers:
             if n == newgame.sender:
                 nextclient = c
-        server.send_message(nextclient,strtellnext)#服务器告诉下一个出牌
+        server.send_message(nextclient,jsondump('askToSend',newgame.owner[1]))#服务器告诉下一个出牌
 
 
 
         #告知全世界谁出了啥牌
-        name = None
-        leftCount = None
-        for c,n in newgame.menbers:
-            if c == client:
-                name = n
-                
-        for n,p in newgame.pokers:
-            if n == name:
-                leftCount = len(p[0])
+        name = newgame.menbers.tellName(client)
+        leftCount = len(newgame.tellPokers(name))
+
+
 
         print '我是',name,'还剩',leftCount
 
@@ -232,6 +198,7 @@ def sendPokers(newgame,dicmessage,client,server):
                     'count':leftCount
                     }
                 })
+
 
         for c,n in newgame.menbers:
             if n == name:
@@ -246,35 +213,20 @@ def sendPokers(newgame,dicmessage,client,server):
         newgame.owner[1]= lps
         newgame.tellnext()
 
+        server.send_message(client,jsondump('sendSuccess',lps))#告知出牌成功
 
-        strmes = json.dumps({
-            'action':'sendSuccess',
-            'data':lps
-            })
-        server.send_message(client,strmes)#告知出牌成功
 
-        strtellnext = json.dumps({
-            'action':'askToSend',
-            'data':newgame.owner[1]
-            })
         nextclient = None
         for c,n in newgame.menbers:
             if n == newgame.sender:
                 nextclient = c
-        server.send_message(nextclient,strtellnext)#服务器告诉下一个出牌
+        server.send_message(nextclient,jsondump('askToSend',newgame.owner[1]))#服务器告诉下一个出牌
 
 
         #告知全世界谁出了啥牌
-        name = None
-        leftCount = None
-        for c,n in newgame.menbers:
-            if c == client:
-                name = n
-                
-        for n,p in newgame.pokers:
-            if n == name:
-                leftCount = len(p[0])
-
+        name = newgame.menbers.tellName(client)
+        leftCount = len(newgame.tellPokers(name))
+ 
         print '我是',name,'还剩',leftCount
 
         strtoall = json.dumps({
@@ -292,11 +244,7 @@ def sendPokers(newgame,dicmessage,client,server):
             server.send_message(c,strtoall)
 
     else:
-        strmes = json.dumps({
-            'action':'sendFail',
-            'data':lps
-            })
-        server.send_message(client,strmes)#告知出牌失败
+        server.send_message(client,jsondump('sendFail',lps))#告知出牌失败
         print 'error，请重新出牌',lps
 
 
@@ -325,6 +273,8 @@ def new_client(client, server):
     name = newgame.menbers.checkIp(client)  
     if name == '':
         print '暂无此clint',client
+    else:
+        print '已经加入过了',name
 
 
 def client_left(client, server):                                                
