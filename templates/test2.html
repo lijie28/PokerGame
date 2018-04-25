@@ -1,13 +1,40 @@
 <html>                                                                      
-<head>                                                                      
+<head>
+
+<link rel="stylesheet" type="text/css" href="static/css/teststyle.css" />                                                                      
 <title>Simple client</title>                                                
 
-<script type="text/javascript">                                             
+<script type="text/javascript">       
+
+
+var myname ;
+var leftname ;
+var rightname ;
+
+var mypokers = ['a3','a4','b5','d6'];
+
+Array.prototype.indexOf = function (val) {
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] == val) return i;
+    }
+    return -1;
+};
+
+Array.prototype.remove = function (val) {
+    var index = this.indexOf(val);
+    if (index > -1) {
+        this.splice(index, 1);
+    }
+};
+
 
 var ws;                                                                     
 
-function init() {                                                           
-    // 获取服务端ip                                                                      
+function init() {
+
+    document.getElementById("landlord").style.display="none"; 
+    document.getElementById("sendpoker").style.display="none";                                                            
+    // 获取服务端ip                                                                     
     var ip_addr = document.location.hostname;                               
     window.WebSocket = window.WebSocket || window.MozWebSocket;             
     ws = new WebSocket('ws://' + ip_addr +':9001');         // 申请新的客户端                
@@ -21,8 +48,145 @@ function init() {
     };                                                                      
 
     ws.onmessage = function(e) {                                            
-        // e.data contains received string.                                 
-        output("onmessage: " + e.data);                                     
+        // e.data contains received string.   
+
+
+        var jsonobj = JSON.parse(e.data); //由JSON字符串转换为JSON对象
+        console.log(jsonobj.action) 
+
+        output("receive: " + e.data);  
+        if (jsonobj.action == 'newMenber' ){
+          console.log(jsonobj.data)
+
+          menbers = jsonobj.data;
+
+          if (myname == menbers[0]){
+            leftname = menbers[2];
+            rightname = menbers[1];
+          }
+          else if(myname == menbers[1]){
+            leftname = menbers[0];
+            rightname = menbers[2];
+
+          }
+          else if(myname == menbers[2]){
+            leftname = menbers[1];
+            rightname = menbers[0];
+          }
+
+          console.log('左边：',leftname,'右边：',rightname)
+          if (leftname != undefined){
+            letfHtml = document.getElementById('leftname')
+            letfHtml.innerHTML = leftname
+
+          }
+          if (rightname != undefined){
+            rightHtml = document.getElementById('rightname')
+
+            rightHtml.innerHTML = rightname
+          }
+
+
+        }else if (jsonobj.action == 'receivePokers' ){
+          mypokers = jsonobj.data;
+          getPokers(mypokers);
+        }else if (jsonobj.action == 'askLandlord' ){
+          
+          document.getElementById("landlord").style.display="";
+        } else if (jsonobj.action == 'askToSend' ){
+          
+          console.log(jsonobj.data);
+          pokers = jsonobj.data;
+          // var divpoker = document.getElementById("othersend");
+          // divpoker.innerHTML ='';
+          // if (pokers!=null){
+          //   for (var i=0;i<pokers.length;i++)
+          //   {
+          //       var strimg = '<img value="iconname" src="{{ url_for('static', filename='icon/iconname.png') }}"/>'
+          //       strimg = strimg.replace('iconname',pokers[i]).replace('iconname',pokers[i])
+          //       divpoker.innerHTML = strimg  + divpoker.innerHTML;
+          //   }
+          // }
+          document.getElementById("sendpoker").style.display="";
+
+        }else if (jsonobj.action == 'sendSuccess' ){
+          console.log(jsonobj.data);
+          send = jsonobj.data;
+          for (var i = 0; i < send.length; i++) {
+            mypokers.remove(send[i]);
+          }
+          getPokers(mypokers);
+          document.getElementById("sendpoker").style.display="none";
+
+          var divpoker = document.getElementById("mysend");
+          divpoker.innerHTML ='';
+          pokers = send;
+          if (pokers!=null){
+            for (var i=0;i<pokers.length;i++)
+            {
+                var strimg = '<img value="iconname" src="{{ url_for('static', filename='icon/iconname.png') }}"/>'
+                strimg = strimg.replace('iconname',pokers[i]).replace('iconname',pokers[i])
+                divpoker.innerHTML = strimg  + divpoker.innerHTML;
+            }
+          }
+
+
+        }
+        else if (jsonobj.action == 'othersend' ){
+
+          other = jsonobj.data.name;
+          otherps = jsonobj.data.poker;
+
+          console.log('othersend',other,myname,otherps,jsonobj.data.count)
+          var divpoker;
+          if (other ==leftname){
+
+
+            divpoker = document.getElementById("leftsend");
+            divpoker.innerHTML ='';
+
+
+            leftHtml = document.getElementById('leftcount')
+            leftHtml.innerHTML = '剩余'+jsonobj.data.count+'张牌'
+
+            console.log('左边赋值',other,otherps,divpoker)
+          }
+          else if (other == rightname){
+
+
+            divpoker = document.getElementById("rightsend");
+            divpoker.innerHTML ='';
+
+            rightHtml = document.getElementById('rightcount')
+            rightHtml.innerHTML = '剩余'+jsonobj.data.count+'张牌'
+
+
+            console.log('右边赋值',other,otherps,divpoker)
+          }
+
+          pokers = otherps;
+          if (pokers.length!=0){
+            for (var i=0;i<pokers.length;i++)
+            {
+                var strimg = '<img value="iconname" src="{{ url_for('static', filename='icon/iconname.png') }}"/>'
+                strimg = strimg.replace('iconname',pokers[i]).replace('iconname',pokers[i])
+                divpoker.innerHTML = strimg  + divpoker.innerHTML;
+            }
+          }
+          else{
+            if (other!=myname){
+
+              console.log(other,'要不起')
+              divpoker.innerHTML = "要不起";
+            }
+          }
+
+        }
+
+
+
+            
+
     };                                                                      
 
     ws.onclose = function() {                                               
@@ -33,17 +197,80 @@ function init() {
         output("onerror");                                                  
         console.log(e)                                                      
     };                                                                      
-
 }                                                                           
+
+function getPokers(pokers){
+    var divpoker = document.getElementById("pokers");
+    divpoker.innerHTML =''
+    for (var i=0;i<pokers.length;i++)
+    {
+        var strimg = '<img value="iconname" src="{{ url_for('static', filename='icon/iconname.png') }}"/>'
+        strimg = strimg.replace('iconname',pokers[i]).replace('iconname',pokers[i])
+        divpoker.innerHTML = strimg  + divpoker.innerHTML;
+
+        // strimg.value = pokers[i]
+    }
+
+    var thepokers = document.getElementById('pokers').getElementsByTagName("img");
+    // var emTal = 0; // 这是总的积分数，初始为0
+    for (var i = 0; i < thepokers.length; i++) {
+        // alert(i)
+       // 先给每个点击的项目添加个自定义属性，以便区别点击前和点击后，刚开始是off
+      thepokers[i].setAttribute("select", "off");
+      thepokers[i].onclick = function() {
+        // alert("hahahe")
+        // 这里判断未点击的点击后，要处理的操作
+        if (this.getAttribute("select") == "off") {
+          // emTal += themVal;
+          this.className = "on";
+          this.setAttribute("select", "on");
+        } else {
+         // 这里自然是已点击过，再点击的操作
+          this.className = "";
+          this.setAttribute("select", "off");
+        }
+      }
+    }
+
+}
 
 function onSubmit() {                                                       
-    var input = document.getElementById("input");                           
-    // You can send message to the Web Socket using ws.send.                
-    ws.send(input.value);                                                   
-    output("send: " + input.value);                                         
+    var input = document.getElementById("input");   
+
+    var messageObj = {data:input.value,action:'setName'};
+    var senddata = JSON.stringify(messageObj);
+    
+
+    ws.send(senddata);  
+    document.getElementById("title").style.display="none";
+    document.getElementById("sitdown").style.display="none";
+    document.getElementById("input").style.display="none";
+    document.getElementById("name").style.display="";
+    var name = document.getElementById("name");
+    name.innerHTML = '欢迎：  '+input.value
+    myname = input.value
+
+
+    output("send: " + senddata);                                         
     input.value = "";                                                       
-    input.focus();                                                          
+    input.focus();
 }                                                                           
+
+function setLandlord(setornot) {                
+    var messageObj = {data:setornot,action:'setLandlord'};
+    var senddata = JSON.stringify(messageObj);
+    
+    // alert(senddata); 
+
+    ws.send(senddata);                                                   
+    output("send: " + senddata);                                         
+    input.value = "";                                                       
+    input.focus();
+
+    document.getElementById("landlord").style.display="none";                                                          
+}          
+
+                                                                   
 
 function onCloseClick() {                                                   
     ws.close();                                                             
@@ -55,15 +282,110 @@ function output(str) {
         replace(/>/, "&gt;").replace(/"/, "&quot;"); // "                   
                                      log.innerHTML = escaped + "<br>" + log.innerHTML;
                                      }                                      
+function test(){
+
+    // alert('test') 
+    // document.getElementById("landlord").style.display="none";
+    alert(document.getElementById("landlord").style.display)
+
+    if (document.getElementById("landlord").style.display==''){
+      document.getElementById("landlord").style.display='none'
+    }else{
+      document.getElementById("landlord").style.display=''
+    }
+
+}
+
+function sendPokers(){
+    var send = [];
+    // alert('出牌')
+    var thepokers = document.getElementById('pokers').getElementsByTagName("img");
+    // console.log(thepokers[0])       
+
+    for (var i = 0; i < thepokers.length; i++) {
+
+        if (thepokers[i].getAttribute("select") == "on") {
+            // alert(thepokers[i])
+            send.push(thepokers[i].getAttribute("value"))
+
+        }
+    }
+    console.log(send)
+
+
+    var messageObj = {data:send,action:'sendPokers'};
+    var senddata = JSON.stringify(messageObj); 
+
+    ws.send(senddata);
+
+
+}
+
+function sendPass(){
+
+      
+    send = ['pass']
+    var messageObj = {data:send,action:'sendPokers'};
+    var senddata = JSON.stringify(messageObj); 
+
+    ws.send(senddata);
+
+
+}
+
+
+
 
 </script>                                                                   
 </head>                                                                     
-<body onload="init();">                                                     
+<body onload="init();">    
+<div id ='title' >确认你的名字并坐下</div>                                                 
 <form onsubmit="onSubmit(); return false;">                                 
-    <input type="text" id="input">                                          
-    <input type="submit" value="Send">                                      
-    <button onclick="onCloseClick(); return false;">close</button>          
-</form>                                                                     
-<div id="log"></div>                                                        
+    <input type="text" id="input">     
+    <span id="name" style="display: none" >未命名</span>                                
+    <input type="submit" id="sitdown" value="坐下">                                      
+    <button onclick="onCloseClick(); return false;">退出</button>          
+</form>
+    
+<div class ='menbers'>
+<div id="left">
+  <div id="leftname">左边</div>
+  <div id="leftcount">剩余 张牌</div>
+</div>
+
+<div id="leftsend"></div>
+<div id="rightsend"></div>
+
+<div id="mysend"></div>
+
+
+
+<div id="right">
+  <div id="rightname">右边</div>
+  <div id="rightcount">剩余 张牌</div>
+</div>
+</div>
+
+
+
+<div id='landlord' style="display:'none'">
+<button onclick="setLandlord(true); return false;" >抢地主</button>
+<button onclick="setLandlord(false); return false;" >不抢</button>
+</div>
+
+
+
+<div id='pokers' class="poker" >
+</div>
+
+<div id='sendpoker'>
+<button onclick="sendPokers()">出牌</button>
+<button onclick="sendPass()">pass</button>
+</div>
+
+<div id="log"></div>
+
+
+
 </body>                                                                     
 </html>                         

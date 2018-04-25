@@ -1,0 +1,258 @@
+<html>                                                                      
+<head>
+
+<link rel="stylesheet" type="text/css" href="static/css/teststyle.css" />                                                                      
+<title>Simple client</title>                                                
+
+<script type="text/javascript">       
+
+// window.onload = function() {
+    
+//     alert('haha')
+// };
+
+
+
+
+
+var ws;                                                                     
+
+function init() {                                                           
+    // 获取服务端ip                                                                      
+    var ip_addr = document.location.hostname;                               
+    window.WebSocket = window.WebSocket || window.MozWebSocket;             
+    ws = new WebSocket('ws://' + ip_addr +':9001');         // 申请新的客户端                
+
+    // Connect to Web Socket                                                
+    //ws = new WebSocket("ws://localhost:9001/");                           
+
+    // Set event handlers.                                                  
+    ws.onopen = function() {                                                
+        output("onopen");                                                   
+    };                                                                      
+
+    ws.onmessage = function(e) {                                            
+        // e.data contains received string.                                 
+        output("onmessage: " + e.data);                          
+        if (e.data['action'] == 'receivePokers' ){
+
+        }    
+    };                                                                      
+
+    ws.onclose = function() {                                               
+        output("onclose");                                                  
+    };                                                                      
+
+    ws.onerror = function(e) {                                              
+        output("onerror");                                                  
+        console.log(e)                                                      
+    };                                                                      
+}                                                                           
+
+function getPokers(pokers){
+    var divpoker = document.getElementById("poker");
+    
+    for (var i=0;i<pokers.length;i++)
+    {
+        var strimg = '<img src="{{ url_for('static', filename='icon/iconname.png') }}"/>'
+        strimg = strimg.replace('iconname',pokers[i])
+        divpoker.innerHTML = strimg  + divpoker.innerHTML;
+    }
+}
+
+function onSubmit() {                                                       
+    var input = document.getElementById("input");                           
+    // You can send message to the Web Socket using ws.send.  
+    // var senddata = {
+    //     "action":"confirm_name",
+    //     "data":input.value,
+    // }              
+    var messageObj = {data:input.value,action:'setName'};
+    var senddata = JSON.stringify(messageObj);
+    
+    // alert(senddata); 
+
+    ws.send(senddata);   
+                                                          
+
+    document.getElementById("title").style.display="none";
+    document.getElementById("sitdown").style.display="none";
+    document.getElementById("input").style.display="none";
+    document.getElementById("name").style.display="";
+    var name = document.getElementById("name");
+    name.innerHTML = '欢迎：  '+input.value
+
+
+    output("send: " + senddata);                                         
+    input.value = "";                                                       
+    input.focus();
+}                                                                           
+
+function setLandlord(setornot) {                
+    var messageObj = {data:setornot,action:'setLandlord'};
+    var senddata = JSON.stringify(messageObj);
+    
+    // alert(senddata); 
+
+    ws.send(senddata);                                                   
+    output("send: " + senddata);                                         
+    input.value = "";                                                       
+    input.focus();
+
+    document.getElementById("landlord").style.display="none";                                                          
+}          
+
+                                                                   
+
+function onCloseClick() {                                                   
+    ws.close();                                                             
+}                                                                           
+
+function output(str) {                                                      
+    var log = document.getElementById("log");                               
+    var escaped = str.replace(/&/, "&amp;").replace(/</, "&lt;").           
+        replace(/>/, "&gt;").replace(/"/, "&quot;"); // "                   
+                                     log.innerHTML = escaped + "<br>" + log.innerHTML;
+                                     }                                      
+function test(){
+
+    alert('test') 
+
+    var odivs = document.getElementById('selexWps').getElementsByTagName("div");
+    var emTal = 0; // 这是总的积分数，初始为0
+    for (var i = 0; i < odivs.length; i++) {
+        // alert(i)
+       // 先给每个点击的项目添加个自定义属性，以便区别点击前和点击后，刚开始是off
+      odivs[i].setAttribute("clickv", "off");
+      odivs[i].onclick = function() {
+        // alert("hahahe")
+        // 点击时，先获取里面的积分文字，转成数字类型
+        var themVal = Number(this.getElementsByTagName("em")[0].innerText);
+        // 这里判断未点击的点击后，要处理的操作
+        if (this.getAttribute("clickv") == "off") {
+          emTal += themVal;
+          this.className = "on";
+          this.getElementsByTagName("p")[0].innerText = "已选择";
+          this.setAttribute("clickv", "on");
+        } else {
+         // 这里自然是已点击过，再点击的操作
+          emTal -= themVal;
+          this.className = "";
+          this.getElementsByTagName("p")[0].innerText = "请选择";
+          this.setAttribute("clickv", "off");
+        }
+         // 这里自然是把点完后，变更的最终积分数添加到页面的结算里
+        document.getElementById("talval").innerText = emTal;
+        //  console.log(emTal)
+      }
+    }
+
+    var thepokers = document.getElementById('pokers').getElementsByTagName("img");
+    // var emTal = 0; // 这是总的积分数，初始为0
+    for (var i = 0; i < thepokers.length; i++) {
+        // alert(i)
+       // 先给每个点击的项目添加个自定义属性，以便区别点击前和点击后，刚开始是off
+      thepokers[i].setAttribute("select", "off");
+      thepokers[i].onclick = function() {
+        // alert("hahahe")
+        // 这里判断未点击的点击后，要处理的操作
+        if (this.getAttribute("select") == "off") {
+          // emTal += themVal;
+          this.className = "on";
+          this.setAttribute("select", "on");
+        } else {
+         // 这里自然是已点击过，再点击的操作
+          this.className = "";
+          this.setAttribute("select", "off");
+        }
+      }
+    }
+
+}
+
+function sendPokers(){
+    var send = [];
+    alert('出牌')
+    var thepokers = document.getElementById('pokers').getElementsByTagName("img");
+    for (var i = 0; i < thepokers.length; i++) {
+
+        if (thepokers[i].getAttribute("select") == "off") {
+            alert(thepokers[i])
+        }
+    }
+
+
+}
+
+
+</script>                                                                   
+</head>                                                                     
+<body onload="init();">    
+<div id ='title' >确认你的名字并坐下</div>                                                 
+<form onsubmit="onSubmit(); return false;">                                 
+    <input type="text" id="input">     
+    <span id="name" style="display: none" >未命名</span>                                
+    <input type="submit" id="sitdown" value="坐下">                                      
+    <button onclick="onCloseClick(); return false;">退出</button>          
+</form>
+    
+
+<div id='landlord'>
+<button onclick="setLandlord(true); return false;" >抢地主</button>
+<button onclick="setLandlord(false); return false;" >不抢</button>
+</div>
+
+<button onclick="getPokers(['a3','a4','b5','d6'])">拿牌</button>
+<button onclick="test()">测试</button>
+
+<div id="friend">uybb2</div>
+
+<div id='pokers' class="poker" > 
+<img value="a1" src="{{ url_for('static', filename='icon/a1.png') }}"/> 
+<img value="a2" src="{{ url_for('static', filename='icon/a2.png') }}"/>
+
+</div>
+
+<button onclick="sendPokers()">出牌</button>
+
+<div id="log"></div>
+
+<div id="selexWps" class="seletProds clear">
+  <div>
+    <span>积分<em>5000</em></span>
+    ![](wrap/img/pic.png)
+    <p>请选择</p>
+  </div>
+  <div>
+    <span>积分<em>5000</em></span>
+    ![](wrap/img/pic.png)
+    <p>请选择</p>
+  </div>
+  <div>
+    <span>积分<em>6000</em></span>
+    ![](wrap/img/pic.png)
+    <p>请选择</p>
+  </div>
+  <div>
+    <span>积分<em>7000</em></span>
+    ![](wrap/img/pic.png)
+    <p>请选择</p>
+  </div>
+  <div>
+    <span>积分<em>8000</em></span>
+    ![](wrap/img/pic.png)
+    <p>请选择</p>
+  </div>
+  <div>
+    <span>积分<em>9000</em></span>
+    ![](wrap/img/pic.png)
+    <p>请选择</p>
+  </div>
+</div>
+<div class="endBtnsWrp clear">
+  <a class="endBtn" href="javascript:;" rel="external nofollow" rel="external nofollow" >积分:<em id="talval">0</em></a>
+  <a class="endBtn" href="javascript:;" rel="external nofollow" rel="external nofollow" >结算</a>
+</div>
+
+</body>                                                                     
+</html>                         

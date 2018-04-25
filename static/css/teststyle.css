@@ -1,0 +1,213 @@
+#pokers {
+    font-weight:bold;
+    background-color: gray;
+    height:260px
+}
+
+.poker>img {
+    width:80px;
+    height:100px;
+    position: relative;
+  /*left: 30px;*/
+    top: 30px;
+}
+
+
+.poker>img.on {
+    width:80px;
+    height:100px;
+    position: relative;
+  /*left: 30px;*/
+    top:0px;
+}
+
+.menbers {
+    position:relative;
+    width: 100%;
+    background-color: lightgray;
+    height:260px
+}
+
+.menbers>div#left {
+position:absolute;
+left:0;
+top:0%;
+height:50px;
+width:50px;
+background:yellow;
+}
+
+.menbers>div#leftsend {
+
+height:100px;
+position :absolute ;
+top:50px;
+left:0%;
+transform:translate(0%,0%);
+/*background: red*/
+}
+.menbers>div#rightsend {
+
+height:100px;
+position :absolute ;
+top:50px;
+right:0%;
+transform:translate(0%,0%);
+/*background: red*/
+}
+
+
+
+.menbers>div#leftsend>img {
+
+height:50px;
+width:40px;
+
+}
+
+.menbers>div#rightsend>img {
+
+height:50px;
+width:40px;
+
+}
+
+.menbers>div#mysend {
+
+height:100px;
+position :absolute ;
+bottom:0%;
+left:50%;
+transform:translate(-50%,0%);
+/*background: red*/
+}
+
+
+.menbers>div#mysend>img {
+
+height:100px;
+width:80px;
+
+}
+
+
+
+
+.menbers>div#right {
+position:absolute;
+right:0;
+top:0%;
+height:50px;
+width:50px;
+background:yellow;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #fff;
+  padding-bottom: 60px;
+}
+ 
+p {
+  padding: 0;
+  margin: 0;
+}
+ 
+ul,
+li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+ 
+a {
+  text-decoration: none;
+  color: #525252;
+}
+ 
+.fl {
+  float: left;
+}
+ 
+.fr {
+  float: right;
+}
+ 
+.clear::after {
+  display: block;
+  content: "";
+  clear: both;
+}
+ 
+.seletProds>div {
+  float: left;
+  position: relative;
+  text-align: center;
+  border: 2px solid #d8d8d8;
+  box-sizing: border-box;
+  width: 30%;
+  margin: 1.666%;
+}
+ 
+.seletProds p {
+  font-size: 14px;
+  line-height: 37px;
+  border-top: 2px solid #d8d8d8;
+  text-align: center;
+  background-color: #fff;
+  color: #525252;
+}
+ 
+.seletProds>div img {
+  width: 80%;
+}
+ 
+.seletProds>div span {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 92, 92, 0.79);
+  padding: 0 3px;
+  color: #fff;
+  height: 17px;
+  font-size: 12px;
+}
+ 
+.seletProds>div span em,
+.endBtnsWrp a em {
+  font-style: normal;
+}
+ 
+.seletProds>div.on p {
+  color: #fff;
+  background-image: linear-gradient(-90deg, #53a0fe 0%, #5063ed 100%);
+}
+ 
+.endBtnsWrp {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+ 
+.endBtn {
+  display: block;
+  float: left;
+  width: 50%;
+  line-height: 50px;
+  font-size: 17px;
+  color: #fff;
+  background: #4a4a4a;
+  text-align: center;
+}
+ 
+.endBtnsWrp a:first-child {
+  background: #646464;
+  width: 60%;
+}
+ 
+.endBtnsWrp a:last-child {
+  background-color: #fcc647;
+  width: 40%;
+}

@@ -10,7 +10,7 @@ brand = {'a':'方块','b':'梅花','c':'红桃','d':'黑桃'}
 # brand = {'a':'方块'}
 brand_code = ['a','b','c','d']
 
-def send(handpokers,sendpokers):
+def send(handpokers,sendpokers,thepokers):
     if len(sendpokers)==1 :
         if sendpokers[0] =='' or sendpokers[0] =='pass':
             sendpokers.pop(0)
@@ -27,6 +27,8 @@ def send(handpokers,sendpokers):
         print strtype
         return False
 
+    if thepokers and not ifbigger(sendpokers,thepokers):
+        return False
 
     # cs = CanSend(handpokers[0])
     # theps = [set(x)  for x in cs.checkcansend(strtype)]
@@ -144,17 +146,46 @@ def countpokers(thepokers):
 
 
 def ifbigger(front,back):
-    # checktype(front)
-    fronttype,frontmax,frontlen = checktype(front)
-    backtype,backmax,backlen = checktype(back)
-    if backtype == '王炸':
+    def biggerthan(x1,x2):
+        a = range(3,14)
+        b = [1,2]
+        
+        if x1 in a and x2 in a and x1>x2:
+            return True
+        elif x1 in b and x2 in b and x1>x2:
+            return True
+        elif x1 in b and x2 in a:
+            return True
+        elif x1 == 0 :
+            return True
+        elif x2 == 0 :
+            return False
+        # elif x1 == 0 and x2 == 0:
+        #     return '不存在'
         return False
 
+    fronttype,frontmax,frontlen = checktype(front)
+    backtype,backmax,backlen = checktype(back)
+    
+    if backtype == '王炸':
+        return False
     if fronttype == '王炸':
         return True
     elif fronttype == '炸弹':
-        if backtype == '炸弹':
-            pass
+        if backtype == '炸弹' and backmax>frontmax:
+            return False
+        else:
+            return True
+    elif backtype == fronttype == '单' and frontmax == backmax == 0 :
+        if front[0] == 'bj0':
+            return True
+        else:
+            return False
+    elif frontlen!=backlen or fronttype!=backtype or not biggerthan(frontmax ,backmax):
+        return False
+    else :
+        # print '大了：',front,back,biggerthan(backmax,frontmax)
+        return True
 
 def checktype(thepokers):
     def biggerthan(x1,x2):
@@ -173,6 +204,18 @@ def checktype(thepokers):
 
     def diccheckshun(dic,count):
         newl = [k for k,v in dic.items() if v==count]
+        newl.sort()
+        if len(newl)>1:
+            if newl[0] == 1:
+                if newl[1] ==2:    
+                    return False
+                elif newl[-1] == 13:
+                    newl.pop(0)
+            elif newl[0] == 2 :
+                return False
+
+        print 'diccheckshun 检查顺子：',newl
+
         for i,x in enumerate(newl):
             if i != len(newl)-1:
                 if x+1==newl[i+1]:
@@ -181,7 +224,6 @@ def checktype(thepokers):
                     return False
         return True
 
-        print 'diccheckshun:',newl,set(newl)
 
 
     diccheck = countpokers(thepokers)

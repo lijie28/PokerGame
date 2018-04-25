@@ -321,10 +321,7 @@ def received(client, server, message):
 
     
 def new_client(client, server):                                                 
-    print("New client connected and was given id %d %s" % (client['id'],client['address'][0]))      
-    name = newgame.menbers.checkIp(client)  
-    if name == '':
-        print '暂无此clint',client
+    print("New client connected and was given id %d %s" % (client['id'],client['address'][0]))        
 
 
 def client_left(client, server):                                                
@@ -333,14 +330,80 @@ def client_left(client, server):
 
 
 def main():
+
     global newgame 
     newgame = Game()
+
     #先凑够3人
     global server
     server = NewServer(9001,"0.0.0.0",received,new_client,client_left)
+
+
 
 
 if __name__ == '__main__':
     main()
 
 
+
+    # def main():
+    # #先凑够3人
+    # newgame = GameProcess()
+    # while len(newgame.menbers)<3:
+    #     name = ask('等待加入')
+    #     if name and name != '':
+    #         newgame.joinin('',name)
+    # print '满人：',newgame.menbers,'发牌'
+    # newgame.Dipper()
+
+    # print '发牌情况：',newgame.pokers,'地主牌是：',newgame.landlord[1]
+
+    # for m in newgame.menbers:
+    #     ans = ask('%s 地主牌是：%s,抢地主吗？'%(m,newgame.landlord[1]))
+    #     if ans == '抢':
+    #         newgame.confirmLandlord(m[1])
+    #         break
+
+    # if not newgame.landlord[0]:
+    #     print '没人抢地主，重新发牌'
+    #     main()
+
+    # print newgame.pokers
+
+    # while len(newgame.pokers[0][1][0])>0 and len(newgame.pokers[1][1][0])>0 and len(newgame.pokers[2][1][0])>0:
+    #     ans = None
+    #     if newgame.owner[1]:
+    #         ans = ask('【%s】你的手牌：%s 请出大于%s的牌'%(newgame.sender,newgame.checkHandpokers()[0],newgame.owner[1]))
+    #     else:
+    #         ans = ask('【%s】你的手牌：%s 请出牌'%(newgame.sender,newgame.checkHandpokers()[0]))
+        
+    #     if ans =='q' or ans =='quit':
+    #         break
+    #     ans = ans.replace("'",'').replace(" ",'')
+    #     lps = ans.split(',')
+
+    #     print newgame.checkHandpokers(),lps
+
+    #     condiction = poker.send(newgame.checkHandpokers(),lps,newgame.owner[1])
+    #     if condiction and len(lps)==0:
+    #         print 'pass了：',ans,lps
+    #         # newgame.owner 
+    #         nextone = newgame.tellnext()
+    #         if newgame.owner[0] == nextone:
+    #             newgame.owner[1]=None
+
+    #     elif condiction:
+    #         print ans,lps
+
+    #         newgame.owner[0]= newgame.sender
+    #         newgame.owner[1]= lps
+    #         newgame.tellnext()
+    #     else:
+    #         print 'error，请重新出牌',lps
+
+    # # print '剩余手牌：\n',newgame.pokers[0][1][0],'\n',newgame.pokers[1][1][0],'\n',newgame.pokers[2][1][0]
+    # for i in range(3):
+    #     strf = ''
+    #     if len(newgame.pokers[i][1][0]) ==0 :
+    #         strf = '胜者'
+    #     print strf,newgame.menbers[i] ,'剩余手牌：',newgame.pokers[i][1][0]

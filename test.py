@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+
+# !/usr/bin/env python 
+# coding: utf-8 
+import threading 
+import time 
+
+
+
+
+
 import time
 bushu = 0
 
@@ -45,7 +56,7 @@ def quicksort(v, left, right):
         quicksort(v, p+1, right)
     return v
 
-s = [12,44,38,5,47,15,36,26,27,2,46,4,19,50,48]
+# s = [12,44,38,5,47,15,36,26,27,2,46,4,19,50,48]
 # a = time.time()
 # print("before sort:",a)
 # # quicksort(s, left = 0, right = len(s) - 1)
@@ -54,24 +65,62 @@ s = [12,44,38,5,47,15,36,26,27,2,46,4,19,50,48]
 # b = time.time()
 # print("after sort:",b,bushu,'用时：',b-a,'\n',s)
 
-a = [1, 2, 0, 3, 4, 0, 5, 0, 6]
-a = filter(lambda x: x > 0, a)
-# for i, x in enumerate(a):
-#     print(i,x)
 
 
+class Person(object):
 
-def test():
-    av = [1,2,3,4,5]
-    bv = [6,7,8,9]
-    for a,b in av,bv:
+    def tellteacher(self,func):
+        print "teacher,my name is %s,i'm %s years old." %(self.name,self.age)
+
+        func(self.repo)
+
+    """docstring for Person"""
+    def __init__(self, name,age):
+        self.name = name
+        self.age = age
+        self.sex = age
+
+        if int(self.age)<18:
+            self.repo = '未成年'
+        else:
+            self.repo = '成年'
+
         
 
-        print('在外',a,b)
+class GPerson(Person):
+    """docstring for GPerson"""
+    # def __init__(self, arg):
+    #     super(GPerson, self).__init__()
+    #     self.arg = arg
+        
+        
+
+def registered(name,age,sex):
+    print '注册'+name + age
+
+
+def report(detail):
+    print '报告结果:',detail
+
+
+p = Person('jack','12')
+# p.tellteacher(report)
+
+def observe(obj,proname,func):
+    class 
+    
+    print obj.__getattribute__(proname)
+    obj.__setattr__(proname,18)
+    print obj.__getattribute__(proname)
+    # print obj.__format__(proname)
+
+
+# print
+observe(p,'age',report)
 
 
 
-test()
+
 
 
 
